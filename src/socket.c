@@ -1101,6 +1101,15 @@ struct pwdata {
 
 static void AskPassword(Message *m)
 {
+
+        // ROGUE SCREEN EDIT
+        // --------------------------------------------
+        // I REALLY DON'T KNOW WHY THE PASSWORD AUTH
+        // IS HERE... THE USER IS ALREADY VERIFIED
+        // BY THE OPERAING SYSTEM... ANOTHER IDENTITY
+        // CHECK IS REDUNDANT
+        // --------------------------------------------
+
 	struct pwdata *pwdata;
 	char prompt[MAXSTR];
 	char *gecos_comma;
@@ -1113,20 +1122,33 @@ static void AskPassword(Message *m)
 	pwdata->len = 0;
 	pwdata->m = *m;
 
-	D_processinputdata = pwdata;
-	D_processinput = PasswordProcessInput;
+	//D_processinputdata = pwdata;
+	//D_processinput = PasswordProcessInput;
+
+	memset(pwdata->buf, 0, sizeof(pwdata->buf));
+	AddStr("\r\n");
+
+	D_processinputdata = NULL;
+	D_processinput = ProcessInput;
+	if (pwdata->m.type == MSG_DETACH || pwdata->m.type == MSG_POW_DETACH)
+		FinishDetach(&pwdata->m);
+	else
+		FinishAttach(&pwdata->m);
+	free(pwdata);
 
 	/* if GECOS data is CSV, we only want the text before the first comma */
-	if ((gecos_comma = strchr(ppp->pw_gecos, ',')))
-		if (!(realname = strndup(ppp->pw_gecos, gecos_comma -  ppp->pw_gecos)))
-			gecos_comma = NULL; /* well, it was worth a shot. */
+	//if ((gecos_comma = strchr(ppp->pw_gecos, ',')))
+	//	if (!(realname = strndup(ppp->pw_gecos, gecos_comma -  ppp->pw_gecos)))
+	//		gecos_comma = NULL; /* well, it was worth a shot. */
 
-	snprintf(prompt, sizeof(prompt), "\ascreen used by %s%s<%s> on %s.\r\nPassword: ",
-		 gecos_comma ? realname : ppp->pw_gecos,
-		 ppp->pw_gecos[0] ? " " : "", ppp->pw_name, HostName);
+	//snprintf(prompt, sizeof(prompt), "\ascreen used by %s%s<%s> on %s.\r\nPassword: ",
+	//	 gecos_comma ? realname : ppp->pw_gecos,
+	//	 ppp->pw_gecos[0] ? " " : "", ppp->pw_name, HostName);
+
+	//snprintf(prompt, sizeof(prompt), "Welcome Back. Press Any Key...");
 
 	free(realname);
-	AddStr(prompt);
+	//AddStr(prompt);
 }
 
 #if ENABLE_PAM
@@ -1230,17 +1252,17 @@ static void PasswordProcessInput(char *ibuf, size_t ilen)
 		if (c == '\r' || c == '\n') {
 			pwdata->buf[len] = 0;
 
-			if (!CheckPassword(pwdata->buf)) {
-				/* uh oh, user failed */
-				memset(pwdata->buf, 0, sizeof(pwdata->buf));
-				AddStr("\r\nPassword incorrect.\r\n");
-				D_processinputdata = NULL; /* otherwise freed by FreeDis */
-				FreeDisplay();
-				Msg(0, "Illegal reattach attempt from terminal %s.", pwdata->m.m_tty);
-				free(pwdata);
-				Kill(pid, SIG_BYE);
-				return;
-			}
+			//if (!CheckPassword(pwdata->buf)) {
+			//	/* uh oh, user failed */
+			//	memset(pwdata->buf, 0, sizeof(pwdata->buf));
+			//	AddStr("\r\nPassword incorrect.\r\n");
+			//	D_processinputdata = NULL; /* otherwise freed by FreeDis */
+			//	FreeDisplay();
+			//	Msg(0, "Illegal reattach attempt from terminal %s.", pwdata->m.m_tty);
+			//	free(pwdata);
+			//	Kill(pid, SIG_BYE);
+			//	return;
+			//}
 
 			/* great, pw matched, all is fine */
 			memset(pwdata->buf, 0, sizeof(pwdata->buf));
