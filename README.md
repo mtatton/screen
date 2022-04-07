@@ -10,4 +10,11 @@
 Rogue fork from savannah. No pass asked on
 reattach. 24-bit colors support.
 
+add following to Your .screenrc:
+vbell off
+truecolor on
+term screen-256color
+writelock off
+lockscreen /dev/null
+
 ```
